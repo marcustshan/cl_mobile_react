@@ -1,18 +1,28 @@
 //App.js
 import React from 'react';
-import RootRouter from './src/Router'
+import RootRouter from './src/Router';
+
+import { Provider } from 'react-redux';
 
 import SplashScreen from 'react-native-splash-screen';
 
-import { View, Modal, ActivityIndicator } from 'react-native';
+import initStore from './src/store';
+const store = initStore();
 
 export default class App extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = store.getState()
+  }
   componentDidMount() {
     SplashScreen.hide();
   }
   render() {
     return (
-      <RootRouter />
+      <Provider store={store}>
+        <RootRouter />
+      </Provider>
     );
   }
 }

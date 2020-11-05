@@ -1,48 +1,45 @@
 import React, { Component } from 'react';
 import { NavigationService } from '../common';
-import axios from 'axios';
+import api from '../api';
 
 import { Alert, Button, Text, TouchableOpacity, TextInput, View, StyleSheet } from 'react-native';
-import ModalActivityIndicator from 'react-native-modal-activityindicator';
+
+import { connect } from 'react-redux';
+import ActionCreator from '../store/actions';
 
 class ViewLogin extends Component {
-  static navigationOptions = ({ navigation }) => {
-    return {
-       header: () => null
-    } 
-  }
-	constructor(props) {
+  constructor(props) {
     super(props);
-    
+
     this.state = {
       id: '',
       password: '',
-      loading: false,
     };
   }
   onLogin() {
     const { id, password } = this.state;
-    this.setState({ loading: true }, () => {
-      axios.post('http://cl.byulsoft.com/api/login', this.state).then((response) => {
-        if (!response.data) {
-          Alert.alert('로그인 정보를 확인해주세요.')
-        } else {
-          console.log(response.data)
-        }
-        this.setState({ loading: false });
-      });
-    })
+    api.post('/login', this.state).then(response => {
+      if (!response.data) {
+        Alert.alert('로그인 정보를 확인해주세요.')
+      } else {
+        this.props.updateUserInfo(response.data);
+
+        NavigationService.navigate('ViewHome', {
+          screen: 'ViewHome'
+        });
+      }
+    });
   }
-	render() {
-		return (
-			<View style={styles.container}>
+  render() {
+    return (
+      <View style={styles.container}>
         <Text style={styles.titleText}>Choose Lunch</Text>
         <TextInput
           value={this.state.id}
-          keyboardType = 'default'
+          keyboardType='default'
           onChangeText={(id) => this.setState({ id })}
           placeholder='ID'
-          placeholderTextColor = '#999'
+          placeholderTextColor='#999'
           style={styles.input}
         />
         <TextInput
@@ -50,20 +47,33 @@ class ViewLogin extends Component {
           onChangeText={(password) => this.setState({ password })}
           placeholder={'password'}
           secureTextEntry={true}
-          placeholderTextColor = '#999'
+          placeholderTextColor='#999'
           style={styles.input}
         />
-     
+
         <TouchableOpacity
           style={styles.button}
           onPress={this.onLogin.bind(this)}
         >
-          <Text style={styles.buttonText}> 로그인 </Text>
+          <Text style={styles.buttonText}>로그인</Text>
         </TouchableOpacity>
-        <ModalActivityIndicator visible={this.state.loading} size='large' color='#5323ba' />
       </View>
-		);
-	}
+    );
+  }
+}
+
+function mapStateToProps(state) {
+  return {
+    ...state
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    updateUserInfo: (userInfo) => {
+      dispatch(ActionCreator.updateUserInfo(userInfo));
+    },
+  };
 }
 
 const styles = StyleSheet.create({
@@ -73,7 +83,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#f1f1f1',
   },
-  titleText:{
+  titleText: {
     fontFamily: 'Baskerville',
     fontSize: 50,
     alignItems: 'center',
@@ -91,7 +101,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     textAlign: 'center',
   },
-  buttonText:{
+  buttonText: {
     fontFamily: 'Baskerville',
     fontSize: 20,
     alignItems: 'center',
@@ -111,4 +121,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ViewLogin;
+export default connect(mapStateToProps, mapDispatchToProps)(ViewLogin);

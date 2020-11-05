@@ -1,0 +1,6 @@
+const types = {
+  USER_UPDATE_USERINFO: 'USER_UPDATE_USERINFO',
+  USER_UPDATE_IS_LOGGED: 'USER_UPDATE_IS_LOGGED',
+};
+
+export default types;
